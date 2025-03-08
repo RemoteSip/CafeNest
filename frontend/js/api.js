@@ -1,6 +1,10 @@
 // API Integration for WorkCafe Website
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000/api'
+// Changed from ES modules to traditional script
+
+// Determine API base URL based on hostname, not process.env
+const API_BASE_URL = window.location.hostname === 'localhost' || 
+                     window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api' 
   : 'https://api.workcafe.com/api';
 
 // Store auth token in localStorage
@@ -22,9 +26,21 @@ const getHeaders = () => {
   return headers;
 };
 
+// Show/hide loading overlay
+const showLoading = () => {
+  const loadingOverlay = document.getElementById('loading-overlay');
+  if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+};
+
+const hideLoading = () => {
+  const loadingOverlay = document.getElementById('loading-overlay');
+  if (loadingOverlay) loadingOverlay.classList.add('hidden');
+};
+
 // API error handler
 const handleError = (error) => {
   console.error('API Error:', error);
+  hideLoading();
   
   // Check if error is unauthorized (401)
   if (error.status === 401) {
@@ -45,6 +61,7 @@ const handleError = (error) => {
 const auth = {
   // Register new user
   async register(userData) {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
@@ -53,6 +70,7 @@ const auth = {
       });
       
       const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -68,6 +86,7 @@ const auth = {
   
   // Login user
   async login(credentials) {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/users/login`, {
         method: 'POST',
@@ -76,6 +95,7 @@ const auth = {
       });
       
       const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -124,12 +144,14 @@ const auth = {
 const cafes = {
   // Get all cafes with pagination
   async getAllCafes(page = 1, limit = 10) {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/cafes?page=${page}&limit=${limit}`, {
         headers: getHeaders()
       });
       
       const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -143,6 +165,7 @@ const cafes = {
   
   // Search cafes with filters
   async searchCafes(searchParams) {
+    showLoading();
     try {
       // Build query string from search params
       const queryParams = new URLSearchParams();
@@ -160,6 +183,7 @@ const cafes = {
       });
       
       const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -173,6 +197,7 @@ const cafes = {
   
   // Find cafes near a location
   async findNearby(latitude, longitude, radius = 5, page = 1, limit = 10) {
+    showLoading();
     try {
       const response = await fetch(
         `${API_BASE_URL}/cafes/nearby?latitude=${latitude}&longitude=${longitude}&radius=${radius}&page=${page}&limit=${limit}`,
@@ -180,6 +205,7 @@ const cafes = {
       );
       
       const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -193,71 +219,14 @@ const cafes = {
   
   // Get a specific cafe
   async getCafeById(cafeId) {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/cafes/${cafeId}`, {
         headers: getHeaders()
       });
       
       const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
-  // Get reviews for a cafe
-  async getCafeReviews(cafeId, page = 1, limit = 10) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/cafes/${cafeId}/reviews?page=${page}&limit=${limit}`, {
-        headers: getHeaders()
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
-  // Add a review for a cafe
-  async addReview(cafeId, reviewData) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/cafes/${cafeId}/reviews`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(reviewData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
-  // Get active check-ins for a cafe
-  async getCafeCheckIns(cafeId) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/cafes/${cafeId}/check-ins`, {
-        headers: getHeaders()
-      });
-      
-      const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -271,6 +240,7 @@ const cafes = {
   
   // Check in to a cafe
   async checkIn(cafeId, occupancyReport = null) {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/cafes/${cafeId}/check-in`, {
         method: 'POST',
@@ -279,25 +249,7 @@ const cafes = {
       });
       
       const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
-  // Get occupancy data for a cafe
-  async getCafeOccupancy(cafeId) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/cafes/${cafeId}/occupancy`, {
-        headers: getHeaders()
-      });
-      
-      const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -312,56 +264,16 @@ const cafes = {
 
 // User API
 const user = {
-  // Update user profile
-  async updateProfile(profileData) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/me`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(profileData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
-  // Change password
-  async changePassword(passwordData) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/me/password`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(passwordData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
   // Get user's favorite cafes
   async getFavorites(page = 1, limit = 10) {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/users/me/favorites?page=${page}&limit=${limit}`, {
         headers: getHeaders()
       });
       
       const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -413,27 +325,9 @@ const user = {
     }
   },
   
-  // Get user's check-in history
-  async getCheckInHistory(page = 1, limit = 10) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/me/check-ins?page=${page}&limit=${limit}`, {
-        headers: getHeaders()
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
   // Check out from current cafe
   async checkOut() {
+    showLoading();
     try {
       const response = await fetch(`${API_BASE_URL}/users/me/check-out`, {
         method: 'POST',
@@ -441,25 +335,7 @@ const user = {
       });
       
       const data = await response.json();
-      
-      if (!response.ok) {
-        throw { status: response.status, message: data.message };
-      }
-      
-      return data;
-    } catch (error) {
-      return handleError(error);
-    }
-  },
-  
-  // Get user's reviews
-  async getReviews(page = 1, limit = 10) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/me/reviews?page=${page}&limit=${limit}`, {
-        headers: getHeaders()
-      });
-      
-      const data = await response.json();
+      hideLoading();
       
       if (!response.ok) {
         throw { status: response.status, message: data.message };
@@ -472,8 +348,8 @@ const user = {
   }
 };
 
-// Export the API
-export default {
+// Expose API to global scope (instead of ES modules)
+window.WorkCafeAPI = {
   auth,
   cafes,
   user

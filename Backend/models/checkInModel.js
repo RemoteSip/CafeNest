@@ -1,3 +1,4 @@
+// Fixed filename to match import in routes (checkInModel.js instead of checkInModels.js)
 const db = require('../database/config');
 
 const CheckIn = {

@@ -5,6 +5,7 @@ const urlsToCache = [
   '/index.html',
   '/css/main.css',
   '/js/main.js',
+  '/js/api.js',
   '/images/logo.png',
   '/images/placeholder.jpg',
   '/icons/favicon-32x32.png',
@@ -15,17 +16,26 @@ const urlsToCache = [
 
 // Install event - cache assets
 self.addEventListener('install', event => {
+  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
+        console.log('Cache opened');
         return cache.addAll(urlsToCache);
+      })
+      .catch(error => {
+        console.error('Cache error during install:', error);
       })
   );
 });
 
 // Fetch event - serve from cache, fall back to network
 self.addEventListener('fetch', event => {
+  // Skip API requests to always use network for those
+  if (event.request.url.includes('/api/')) {
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -34,34 +44,36 @@ self.addEventListener('fetch', event => {
           return response;
         }
         
-        // Clone the request because request streams can only be read once
-        const fetchRequest = event.request.clone();
-        
-        return fetch(fetchRequest).then(response => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          
-          // Clone the response because the response stream can only be read once
-          const responseToCache = response.clone();
-          
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              // Don't cache API responses that will change frequently
-              if (!event.request.url.includes('/api/')) {
-                cache.put(event.request, responseToCache);
-              }
-            });
+        // Not in cache - fetch from network
+        return fetch(event.request)
+          .then(networkResponse => {
+            // Return the network response
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
+            }
             
-          return response;
-        });
+            // Clone the response because the response stream can only be read once
+            var responseToCache = networkResponse.clone();
+            
+            // Cache the fetched response
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+              
+            return networkResponse;
+          })
+          .catch(error => {
+            console.error('Fetch error:', error);
+            // You could return a custom offline page here
+          });
       })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
+  console.log('Service Worker activating...');
   const cacheWhitelist = [CACHE_NAME];
   
   event.waitUntil(
@@ -70,6 +82,7 @@ self.addEventListener('activate', event => {
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
             // If this cache name isn't in our whitelist, delete it
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -80,13 +93,14 @@ self.addEventListener('activate', event => {
 
 // Push event - handle push notifications
 self.addEventListener('push', event => {
+  console.log('Push event received');
   if (event.data) {
     const data = event.data.json();
     
     const options = {
-      body: data.body,
-      icon: '/icons/logo.png',
-      badge: '/icons/badge.png',
+      body: data.body || 'New notification',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/favicon-32x32.png',
       vibrate: [100, 50, 100],
       data: {
         url: data.url || '/'
@@ -94,16 +108,17 @@ self.addEventListener('push', event => {
     };
     
     event.waitUntil(
-      self.registration.showNotification(data.title, options)
+      self.registration.showNotification(data.title || 'WorkCafe Notification', options)
     );
   }
 });
 
 // Notification click event - handle notification clicks
 self.addEventListener('notificationclick', event => {
+  console.log('Notification clicked');
   event.notification.close();
   
-  const url = event.notification.data.url;
+  const url = event.notification.data.url || '/';
   
   event.waitUntil(
     clients.matchAll({type: 'window'})
@@ -122,3 +137,5 @@ self.addEventListener('notificationclick', event => {
       })
   );
 });
+
+console.log('Service Worker registered successfully');
