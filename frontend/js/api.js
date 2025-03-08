@@ -1,7 +1,7 @@
 // API Integration for WorkCafe Website
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.workcafe.com/api' 
-  : 'http://localhost:5000/api';
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api'
+  : 'https://api.workcafe.com/api';
 
 // Store auth token in localStorage
 const getToken = () => localStorage.getItem('workcafe_token');
