@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WorkCafe - Find Your Perfect Work Space</title>
   <!-- Correct CSS path -->
-  <link rel="stylesheet" href="/frontend/css/main.css">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="manifest" href="public/manifest.json">
   <meta name="theme-color" content="#1e3a8a">
   <!-- Correct icon paths -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 </head>
 <body>
@@ -17,7 +17,7 @@
     <div class="container">
       <div class="logo">
         <a href="/">
-          <img src="/images/logo.png" alt="WorkCafe Logo">
+          <img src="images/logo.png" alt="WorkCafe Logo">
         </a>
       </div>
       
@@ -121,8 +121,8 @@
           <div class="cafe-card lazy-load" data-id="1">
             <img 
               class="lazy"
-              data-src="/images/cafe1-large.jpg"
-              src="/images/placeholder.jpg"
+              data-src="images/cafe1-large.jpg"
+              src="images/placeholder.jpg"
               alt="Urban Coffee House"
             />
             <div class="cafe-info">
@@ -146,7 +146,7 @@
               <img 
                 class="lazy"
                 data-src=""
-                src="/images/placeholder.jpg"
+                src="images/placeholder.jpg"
                 alt=""
               />
               <div class="cafe-info">
@@ -217,7 +217,7 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-logo">
-          <img src="/images/logo.png" alt="WorkCafe Logo">
+          <img src="images/logo.png" alt="WorkCafe Logo">
           <p>© 2025 WorkCafe. All rights reserved.</p>
         </div>
         <div class="footer-links">
@@ -246,12 +246,12 @@
 
   <!-- Correct script paths -->
   <script src="/js/api.js"></script>
-  <script src="/js/main.js"></script>
+  <script src="js/main.js"></script>
   <script>
     // Register service worker with the correct path
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('service-worker.js')
           .then(registration => {
             console.log('ServiceWorker registered: ', registration);
           })
