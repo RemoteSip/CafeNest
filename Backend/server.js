@@ -10,7 +10,7 @@ require('dotenv').config();
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5500;
 
 // Middleware
 app.use(helmet({
@@ -51,15 +51,17 @@ app.get('/api/health', (req, res) => {
 
 // Serve static frontend files - added to serve frontend assets
 // Note the correct paths for frontend files
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use(express.static(path.join(__dirname, '../frontend/')));
+
 
 // Handle frontend routing - serve index.html for all non-API routes
 app.get('*', (req, res, next) => {
   if (req.url.startsWith('/api')) {
     return next(); // Skip for API routes
   }
-  res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
+
 
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
@@ -78,4 +80,4 @@ app.listen(PORT, () => {
   console.log(`Frontend available at http://localhost:${PORT}`);
 });
 
-module.exports = app; // For testing
+//module.exports = app; // For testing
