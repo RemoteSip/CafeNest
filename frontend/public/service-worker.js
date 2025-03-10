@@ -55,6 +55,9 @@ self.addEventListener('fetch', event => {
             });
             
           return response;
+        }).catch(error => {
+          console.error('Fetching failed:', error);
+          throw error;
         });
       })
   );
