@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WorkCafe - Find Your Perfect Work Space</title>
+
+  <title>CafeNest - Find Your Perfect Work Space</title>
+  <link rel="preload" href="/frontend/css/main.css" as="style">
+  <link rel="preconnect" href="https://api.workcafe.com">
+  <link rel="dns-prefetch" href="https://api.workcafe.com">
   <link rel="stylesheet" href="/frontend/css/main.css">
   <link rel="manifest" href="/frontend/public/manifest.json">
   <meta name="theme-color" content="#1e3a8a">
@@ -20,10 +24,12 @@
         </a>
       </div>
       
-      <!-- Desktop Navigation -->
-      <nav class="desktop-nav">
-        <ul>
-          <li><a href="/discover">Discover</a></li>
+          <!-- Update navigation -->
+          <nav class="desktop-nav" role="navigation" aria-label="Main navigation">
+            <div class="search-bar" role="search">
+            <div class="category-scroll" role="tablist" aria-label="Cafe Categories">
+            <ul>
+              <li><a href="/discover">Discover</a></li>
           <li><a href="/how-it-works">How It Works</a></li>
           <li><a href="/for-cafes">For Cafés</a></li>
           <li><a href="/about">About Us</a></li>
@@ -62,24 +68,34 @@
   <main>
     <section class="hero">
       <div class="container">
+        <!-- Update image elements -->
+        <img 
+          src="/images/placeholder.jpg"
+          data-src="/images/cafe1-large.jpg"
+          srcset="/images/cafe1-small.jpg 300w, /images/cafe1-medium.jpg 600w, /images/cafe1-large.jpg 900w"
+          sizes="(max-width: 600px) 300px, (max-width: 900px) 600px, 900px"
+          loading="lazy"
+          alt="Urban Coffee House interior view"
+          width="600"
+          height="400"
+        >
         <h1>Find The Perfect Café To Work From</h1>
         <p>Discover cafés with fast Wi-Fi, power outlets, and great coffee for productive remote work.</p>
         
         <div class="search-container">
           <div class="search-bar">
             <input type="text" placeholder="Enter location or zip code" id="location-search">
-            <button class="search-btn">Search</button>
-            <button class="near-me-btn" id="near-me-btn">
+            <button class="search-btn" aria-label="Search">Search</button>
+            <button class="near-me-btn" id="near-me-btn" aria-label="Near Me">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                 <path fill="none" d="M0 0h24v24H0z"/>
                 <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
               </svg>
-              Near Me
             </button>
           </div>
           
           <div class="filter-container">
-            <button class="filter-toggle" id="filter-toggle">Filters</button>
+            <button class="filter-toggle" id="filter-toggle" aria-label="Toggle Filters">Filters</button>
             <div class="filters" id="filters">
               <div class="filter-group">
                 <h3>Amenities</h3>
@@ -96,7 +112,7 @@
                 <label><input type="checkbox"> Open Weekends</label>
               </div>
               
-              <button class="btn-primary apply-filters">Apply Filters</button>
+              <button class="btn-primary apply-filters" aria-label="Apply Filters">Apply Filters</button>
             </div>
           </div>
         </div>
@@ -105,7 +121,7 @@
 
     <section class="cafe-listings">
       <div class="container">
-        <h2>Popular WorkCafés Near You</h2>
+        <h2>Popular WorkAreas Near You</h2>
         
         <div class="category-scroll">
           <button class="category active">All</button>

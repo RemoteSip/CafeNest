@@ -1,3 +1,14 @@
+/* CSS Variables */
+:root {
+  --primary-color: #1e3a8a;
+  --secondary-color: #f8f8f8;
+  --text-color: #333;
+  --link-color: #1e3a8a;
+  --background-color: #f8f8f8;
+  --header-height: 60px;
+  --transition-duration: 0.3s;
+}
+
 /* Base Styles */
 * {
   margin: 0;
@@ -12,8 +23,8 @@ html {
 
 body {
   line-height: 1.5;
-  color: #333;
-  background-color: #f8f8f8;
+  color: var(--text-color);
+  background-color: var(--background-color);
 }
 
 img {
@@ -22,7 +33,7 @@ img {
 }
 
 a {
-  color: #1e3a8a;
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -101,13 +112,13 @@ p {
   font-weight: 500;
   text-align: center;
   font-size: 0.875rem;
-  transition: all 0.2s;
+  transition: all var(--transition-duration);
   min-height: 44px;
   min-width: 44px;
 }
 
 .btn-primary {
-  background-color: #1e3a8a;
+  background-color: var(--primary-color);
   color: white;
   border: none;
 }
@@ -118,8 +129,8 @@ p {
 
 .btn-outline {
   background-color: transparent;
-  color: #1e3a8a;
-  border: 1px solid #1e3a8a;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
 }
 
 .btn-outline:hover {
@@ -133,13 +144,14 @@ p {
   position: sticky;
   top: 0;
   z-index: 100;
+  height: var(--header-height);
 }
 
 .header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 60px;
+  height: 100%;
 }
 
 .logo img {
@@ -178,8 +190,8 @@ p {
     left: 0;
     width: 0;
     height: 2px;
-    background-color: #1e3a8a;
-    transition: width 0.3s;
+    background-color: var(--primary-color);
+    transition: width var(--transition-duration);
   }
   
   .desktop-nav a:hover:after {
@@ -223,7 +235,7 @@ p {
   height: 3px;
   width: 100%;
   background-color: #333;
-  transition: all 0.3s;
+  transition: all var(--transition-duration);
 }
 
 .hamburger.active span:nth-child(1) {
@@ -241,7 +253,7 @@ p {
 .mobile-menu {
   display: none;
   position: absolute;
-  top: 60px;
+  top: var(--header-height);
   left: 0;
   right: 0;
   background-color: white;
@@ -324,7 +336,7 @@ p {
 }
 
 .search-btn {
-  background-color: #1e3a8a;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 0 1.5rem;
@@ -432,7 +444,7 @@ p {
 }
 
 .category.active {
-  background-color: #1e3a8a;
+  background-color: var(--primary-color);
   color: white;
 }
 
@@ -460,7 +472,7 @@ p {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform var(--transition-duration), box-shadow var(--transition-duration);
 }
 
 .cafe-card:hover {
@@ -550,7 +562,7 @@ p {
 }
 
 .bottom-nav-item.active {
-  color: #1e3a8a;
+  color: var(--primary-color);
 }
 
 .bottom-nav-item svg {
@@ -575,7 +587,7 @@ p {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: #1e3a8a;
+  background-color: var(--primary-color);
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   border: none;
@@ -666,7 +678,7 @@ footer {
 /* Lazy Loading */
 .lazy {
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity var(--transition-duration);
 }
 
 .lazy.loaded {
