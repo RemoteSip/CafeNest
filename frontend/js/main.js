@@ -1,234 +1,203 @@
-// DOM Elements
-const hamburgerBtn = document.getElementById('hamburger-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-const filterToggle = document.getElementById('filter-toggle');
-const filters = document.getElementById('filters');
-const nearMeBtn = document.getElementById('near-me-btn');
-const fab = document.getElementById('fab');
-const cafeCards = document.querySelectorAll('.cafe-card');
-const categoryButtons = document.querySelectorAll('.category');
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize the application
+  initApp();
+});
 
-// Mobile Navigation
-if (hamburgerBtn && mobileMenu) {
-  hamburgerBtn.addEventListener('click', () => {
-    hamburgerBtn.classList.toggle('active');
-    mobileMenu.classList.toggle('active');
-  });
+// Main initialization function
+function initApp() {
+  // Initialize UI components
+  initUIComponents();
+  
+  // Load initial data
+  loadInitialCafes();
+  
+  // Check authentication status
+  checkAuthStatus();
+  
+  // Initialize event listeners
+  setupEventListeners();
 }
 
-// Filters Toggle
-if (filterToggle && filters) {
-  filterToggle.addEventListener('click', () => {
-    filters.classList.toggle('active');
-  });
+// Initialize UI components
+function initUIComponents() {
+  // Initialize mobile menu
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
   
-  // Close filters when clicking outside
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest('.filter-container') && filters.classList.contains('active')) {
-      filters.classList.remove('active');
+  if (hamburgerBtn && mobileMenu) {
+    hamburgerBtn.addEventListener('click', () => {
+      hamburgerBtn.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+    });
+  }
+
+  // Initialize filters
+  const filterToggle = document.getElementById('filter-toggle');
+  const filters = document.getElementById('filters');
+  
+  if (filterToggle && filters) {
+    filterToggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      filters.classList.toggle('active');
+    });
+    
+    // Close filters when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.filter-container') && filters.classList.contains('active')) {
+        filters.classList.remove('active');
+      }
+    });
+  }
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  // Near me button
+  const nearMeBtn = document.getElementById('near-me-btn');
+  if (nearMeBtn) {
+    nearMeBtn.addEventListener('click', getUserLocation);
+  }
+
+  // Search button
+  const searchBtn = document.getElementById('search-btn');
+  if (searchBtn) {
+    searchBtn.addEventListener('click', handleSearch);
+  }
+
+  // Floating action button
+  const fab = document.getElementById('fab');
+  if (fab) {
+    fab.addEventListener('click', handleFabClick);
+  }
+
+  // Category buttons
+  const categoryButtons = document.querySelectorAll('.category');
+  if (categoryButtons.length > 0) {
+    categoryButtons.forEach(button => {
+      button.addEventListener('click', handleCategoryClick);
+    });
+  }
+
+  // Load more button
+  const loadMoreBtn = document.getElementById('load-more');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', handleLoadMore);
+  }
+
+  // Apply filters button
+  const applyFiltersBtn = document.getElementById('apply-filters-btn');
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', handleApplyFilters);
+  }
+
+  // Login/Signup buttons
+  const loginBtn = document.getElementById('login-btn');
+  const signupBtn = document.getElementById('signup-btn');
+  const mobileLoginBtn = document.getElementById('mobile-login-btn');
+  const mobileSignupBtn = document.getElementById('mobile-signup-btn');
+  
+  if (loginBtn) loginBtn.addEventListener('click', () => window.location.href = '/login');
+  if (signupBtn) signupBtn.addEventListener('click', () => window.location.href = '/signup');
+  if (mobileLoginBtn) mobileLoginBtn.addEventListener('click', () => window.location.href = '/login');
+  if (mobileSignupBtn) mobileSignupBtn.addEventListener('click', () => window.location.href = '/signup');
+
+  // Add event delegation for cafe cards (for cards added dynamically)
+  const cafeCardsContainer = document.getElementById('cafe-cards');
+  if (cafeCardsContainer) {
+    cafeCardsContainer.addEventListener('click', (event) => {
+      const viewDetailsBtn = event.target.closest('.view-details');
+      if (viewDetailsBtn) {
+        const cafeId = viewDetailsBtn.getAttribute('data-cafe-id');
+        if (cafeId) {
+          window.location.href = `/cafe/${cafeId}`;
+        }
+      }
+    });
+  }
+}
+
+// Load initial cafes
+async function loadInitialCafes() {
+  try {
+    const cafes = await window.WorkCafeAPI.cafes.getAllCafes(1, 10);
+    
+    if (cafes.error) {
+      showError('Failed to load cafes: ' + cafes.message);
+      return;
     }
-  });
+    
+    renderCafes(cafes);
+  } catch (error) {
+    console.error('Error loading cafes:', error);
+    showError('Failed to load cafes. Please try again later.');
+  }
 }
 
-// Geolocation
-if (nearMeBtn) {
-  nearMeBtn.addEventListener('click', getUserLocation);
-}
-
-// Floating Action Button
-if (fab) {
-  fab.addEventListener('click', () => {
-    // Show quick search modal or other primary action
-    alert('Quick Search Feature Coming Soon!');
-  });
-}
-
-// Category Filtering
-if (categoryButtons.length > 0) {
-  categoryButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      // Remove active class from all category buttons
-      categoryButtons.forEach(btn => btn.classList.remove('active'));
-      
-      // Add active class to clicked button
-      button.classList.add('active');
-      
-      // Filter cafe cards based on category (would be more sophisticated in a real app)
-      const category = button.textContent.toLowerCase();
-      filterCafesByCategory(category);
-    });
-  });
-}
-
-// Function to filter cafes by category
-function filterCafesByCategory(category) {
-  // This is a simple implementation - in a real app you would have more data
-  // and more sophisticated filtering
+// Render cafe cards
+function renderCafes(cafes) {
+  const cafeCardsContainer = document.getElementById('cafe-cards');
+  const template = document.getElementById('cafe-card-template');
   
-  if (category === 'all') {
-    // Show all cafe cards
-    cafeCards.forEach(card => {
-      card.style.display = 'block';
-    });
+  if (!cafeCardsContainer || !template) {
+    console.error('Missing cafe cards container or template');
     return;
   }
   
-  // Filter based on category
-  cafeCards.forEach(card => {
-    // In a real app, each card would have data attributes with its categories
-    // For this demo, we'll just randomly show/hide cards
-    const shouldShow = Math.random() > 0.5;
-    card.style.display = shouldShow ? 'block' : 'none';
-  });
-}
-
-// Lazy Loading Images
-document.addEventListener('DOMContentLoaded', () => {
-  const lazyImages = document.querySelectorAll('img.lazy');
-  const lazyLoadElements = document.querySelectorAll('.lazy-load');
+  // Remove any existing cafe cards (except the template)
+  const existingCards = cafeCardsContainer.querySelectorAll('.cafe-card:not([data-id="1"])');
+  existingCards.forEach(card => card.remove());
   
-  if ('IntersectionObserver' in window) {
-    // Use Intersection Observer for efficient lazy loading
-    const lazyImageObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src;
-          img.classList.add('loaded');
-          lazyImageObserver.unobserve(img);
-        }
-      });
-    });
+  // Generate cafe cards for each cafe
+  cafes.forEach(cafe => {
+    const cardClone = template.content.cloneNode(true);
+    const cafeCard = cardClone.querySelector('.cafe-card');
     
-    lazyImages.forEach(img => {
-      lazyImageObserver.observe(img);
-    });
+    cafeCard.setAttribute('data-id', cafe.cafe_id);
     
-    // Observer for other lazy-loaded elements
-    const lazyElementObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('loaded');
-          lazyElementObserver.unobserve(entry.target);
-        }
-      });
-    });
+    const img = cardClone.querySelector('img');
+    const imageSrc = cafe.images && cafe.images.length > 0 
+      ? cafe.images[0].image_url 
+      : '../images/placeholder.jpg';
+    img.setAttribute('data-src', imageSrc);
+    img.setAttribute('alt', cafe.name);
     
-    lazyLoadElements.forEach(element => {
-      lazyElementObserver.observe(element);
-    });
-  } else {
-    // Fallback for browsers that don't support Intersection Observer
-    // Load all images immediately
-    lazyImages.forEach(img => {
-      img.src = img.dataset.src;
-      img.classList.add('loaded');
-    });
+    cardClone.querySelector('h3').textContent = cafe.name;
+    cardClone.querySelector('.rating').textContent = `${cafe.rating} ★`;
     
-    lazyLoadElements.forEach(element => {
-      element.classList.add('loaded');
-    });
-  }
-});
-
-// Check-in Feature
-function checkInAtCafe(cafeId) {
-  // This would make an API call to your backend in a real app
-  console.log(`Checking in at cafe ${cafeId}`);
-  
-  // For demo purposes
-  alert(`You've checked in at this café! There are 5 other remote workers here right now.`);
-  
-  // Request notification permission
-  requestNotificationPermission();
-}
-
-// Notification Permission
-async function requestNotificationPermission() {
-  if ('Notification' in window) {
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      // Subscribe user to push notifications
-      subscribeToPushNotifications();
+    // Set distance if available
+    const distanceEl = cardClone.querySelector('.distance');
+    if (cafe.distance) {
+      distanceEl.textContent = `${cafe.distance.toFixed(1)} miles`;
+    } else {
+      distanceEl.textContent = '';
     }
-  }
-}
-
-// Subscribe to Push Notifications
-function subscribeToPushNotifications() {
-  // This would integrate with your push notification service
-  console.log('User subscribed to push notifications');
-  
-  // Example notification (would normally be triggered by server)
-  setTimeout(() => {
-    sendCafeUpdateNotification({
-      name: 'Urban Coffee House',
-      occupancy: '85%'
-    });
-  }, 10000);
-}
-
-// Send Notification
-function sendCafeUpdateNotification(cafe) {
-  if (Notification.permission === 'granted') {
-    new Notification('Café Update', {
-      body: `${cafe.name} is getting busy! Currently at ${cafe.occupancy} capacity.`,
-      icon: '/icons/logo.png'
-    });
-  }
-}
-
-function getUserLocation() {
-  if (navigator.geolocation) {
-    nearMeBtn.disabled = true;
-    nearMeBtn.textContent = 'Locating...';
     
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        searchNearbyWorkplaces(latitude, longitude);
-        
-        nearMeBtn.disabled = false;
-        nearMeBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-            <path fill="none" d="M0 0h24v24H0z"/>
-            <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
-          </svg>
-          Near Me
-        `;
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-        nearMeBtn.disabled = false;
-        nearMeBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-            <path fill="none" d="M0 0h24v24H0z"/>
-            <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
-          </svg>
-          Near Me
-        `;
-        // Fall back to IP-based location or manual entry
-        alert('Unable to get your location. Please enter it manually.');
-      }
-    );
-  }
-}
-
-// Function to search workplaces near a location
-function searchNearbyWorkplaces(latitude, longitude) {
-  console.log(`Searching for workplaces near ${latitude}, ${longitude}`);
-  // This would typically make an API call to your backend
-  // For now, let's simulate loading with a timeout
+    // Set amenities
+    const amenitiesEl = cardClone.querySelector('p');
+    if (cafe.amenities && cafe.amenities.length > 0) {
+      amenitiesEl.textContent = cafe.amenities.slice(0, 3).join(', ');
+    } else {
+      amenitiesEl.textContent = 'No amenities listed';
+    }
+    
+    // Set open/closed status
+    const openEl = cardClone.querySelector('.open');
+    openEl.textContent = 'Open Now'; // Ideally check hours from API
+    
+    // Set occupancy
+    const occupancyEl = cardClone.querySelector('.occupancy');
+    occupancyEl.textContent = cafe.occupancy_percentage 
+      ? `${cafe.occupancy_percentage}% Full` 
+      : 'Occupancy unknown';
+    
+    // Set button cafe ID
+    const viewDetailsBtn = cardClone.querySelector('.view-details');
+    viewDetailsBtn.setAttribute('data-cafe-id', cafe.cafe_id);
+    
+    cafeCardsContainer.appendChild(cardClone);
+  });
   
-  const loadingIndicator = document.createElement('div');
-  loadingIndicator.className = 'loading-indicator';
-  loadingIndicator.textContent = 'Finding workplaces near you...';
-  document.querySelector('.cafe-cards').prepend(loadingIndicator);
-  
-  setTimeout(() => {
-    loadingIndicator.remove();
-    // In a real app, you would update the cafe cards with results from the API
-    alert('Found 12 workplaces within 2 miles of your location.');
-  }, 2000);
+  // Initialize lazy loading for new images
+  initLazyLoading();
 }
