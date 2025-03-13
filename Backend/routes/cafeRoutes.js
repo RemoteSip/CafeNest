@@ -53,11 +53,10 @@ router.get('/search', [
       minRating: req.query.minRating,
       maxNoise: req.query.maxNoise,
       minWifi: req.query.minWifi,
-      openNow: req.query.openNow === 'true',
-      page: req.query.page || 1,
-      limit: req.query.limit || 10
+      openNow: req.query.openNow,
+      page: req.query.page,
+      limit: req.query.limit
     };
-    
     const cafes = await Cafe.searchCafes(searchParams);
     res.json(cafes);
   } catch (error) {

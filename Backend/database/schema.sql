@@ -186,3 +186,4 @@ INSERT INTO categories (name, description) VALUES
 ('Pet-Friendly', 'Allows well-behaved pets'),
 ('Late Night', 'Open late for night owls'),
 ('Outdoor Space', 'Has outdoor seating options');
+
