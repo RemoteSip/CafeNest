@@ -158,7 +158,7 @@ function renderCafes(cafes) {
     const img = cardClone.querySelector('img');
     const imageSrc = cafe.images && cafe.images.length > 0 
       ? cafe.images[0].image_url 
-      : '/images/placeholder.jpg';
+      : '../images/placeholder.jpg';
     img.setAttribute('data-src', imageSrc);
     img.setAttribute('alt', cafe.name);
     
